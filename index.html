@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Color Studio — Online Drawing</title>
+<style>
+:root{--bg:#10121a;--panel:#191c28;--panel2:#222637;--text:#f4f5fb;--muted:#a9afc4;--accent:#9b87ff;--line:#30364a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top left,#24203b 0,#10121a 42%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);background:#10121ad9;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:.2px}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#9b87ff,#f28ac5);color:#171525}
+.pill{font-size:12px;color:#cfc6ff;border:1px solid #5c508b;background:#292340;padding:5px 9px;border-radius:999px}
+main{max-width:1400px;margin:auto;padding:20px;display:grid;grid-template-columns:265px minmax(0,1fr);gap:18px}
+.panel,.workspace{background:linear-gradient(180deg,#1b1e2b,#171a25);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 40px #0002}
+.panel{padding:17px;height:max-content}.panel h2{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:2px 0 15px}
+.control{margin-bottom:18px}.control label,.labelrow{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13px;color:#e4e6f2;margin-bottom:9px}
+input[type=color]{width:100%;height:43px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:4px;cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.swatch{height:27px;border:2px solid #ffffff25;border-radius:8px;cursor:pointer}.swatch:focus{outline:2px solid white}
+.segment{display:grid;grid-template-columns:1fr 1fr;gap:7px}.segment button,.toolrow button,.actions button{border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:10px 9px;cursor:pointer;font-weight:600}.segment button.active,.toolrow button.active{border-color:var(--accent);background:#393052;box-shadow:inset 0 0 0 1px #9b87ff45}
+.toolrow{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolrow button{font-size:12px;padding:10px 5px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button.primary{background:linear-gradient(135deg,#9b87ff,#7661e9);border:0;color:#fff}.actions button:disabled{opacity:.45;cursor:not-allowed}
+.workspace{padding:16px;min-width:0}.worktop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;flex-wrap:wrap}.worktop h1{font-size:18px;margin:0}.worktop p{font-size:12px;color:var(--muted);margin:3px 0 0}.canvaswrap{position:relative;width:100%;height:min(67vh,690px);min-height:350px;border:1px solid #41465b;border-radius:14px;overflow:hidden;background-color:#fff;background-image:linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.status{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;padding-top:12px}.hint{margin-top:15px;padding:12px 13px;background:#232338;border:1px solid #3d3a61;border-radius:12px;color:#d6d0f5;font-size:12px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 24px}
+@media(max-width:850px){main{grid-template-columns:1fr;padding:12px}.panel{order:2}.workspace{order:1}.canvaswrap{height:55vh;min-height:300px}header{padding:13px 15px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">✦</span><span>Color Studio</span></div>
+  <span class="pill">FREE DIGITAL PAINTING</span>
+</header>
+<main>
+  <aside class="panel">
+    <h2>Color controls</h2>
+    <div class="control"><label for="color">Choose your color <span id="hex">#7C5CFC</span></label><input id="color" type="color" value="#7c5cfc"></div>
+    <div class="control"><div class="labelrow"><label>Quick colors</label></div><div class="swatches" id="swatches"></div></div>
+    <div class="control"><div class="labelrow"><label for="opacity">Color density / opacity</label><span id="opacityVal">85%</span></div><input id="opacity" type="range" min="5" max="100" value="85"></div>
+    <div class="control"><div class="labelrow"><label for="size">Brush size</label><span id="sizeVal">12 px</span></div><input id="size" type="range" min="1" max="60" value="12"></div>
+    <div class="control"><div class="labelrow"><label>Paint finish</label></div><div class="segment"><button id="matte" class="active" type="button">Matte</button><button id="glossy" type="button">✨ Glossy</button></div></div>
+    <div class="control"><div class="labelrow"><label>Tools</label></div><div class="toolrow"><button id="brush" class="active" type="button">🖌 Brush</button><button id="eraser" type="button">⌫ Eraser</button><button id="fillwhite" type="button">□ White BG</button></div></div>
+    <div class="control"><div class="labelrow"><label>Canvas actions</label></div><div class="actions"><button id="undo" type="button" disabled>↶ Undo</button><button id="redo" type="button" disabled>↷ Redo</button><button id="clear" type="button">Clear canvas</button><button id="download" class="primary" type="button">↓ Download PNG</button></div></div>
+    <div class="hint">Tip: Mouse, trackpad, or touch দিয়ে আঁকো। Glossy mode brush-এর সঙ্গে highlight effect যোগ করে—এটি digital visual effect, বাস্তব paint simulation নয়।</div>
+  </aside>
+  <section class="workspace">
+    <div class="worktop"><div><h1>Your canvas</h1><p>Make something only you can imagine.</p></div><span class="pill" id="toolStatus">Brush · Matte</span></div>
+    <div class="canvaswrap"><canvas id="canvas" aria-label="Drawing canvas"></canvas></div>
+    <div class="status"><span>● Ready to draw</span><span>Artwork stays in this browser until you download it.</span></div>
+  </section>
+</main>
+<footer>Color Studio · A beginner-friendly drawing website prototype</footer>
+<script>
+(() => {
+ const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d');
+ const color=document.getElementById('color'), opacity=document.getElementById('opacity'), size=document.getElementById('size');
+ const opacityVal=document.getElementById('opacityVal'), sizeVal=document.getElementById('sizeVal'), hex=document.getElementById('hex');
+ const undoBtn=document.getElementById('undo'), redoBtn=document.getElementById('redo');
+ let drawing=false, tool='brush', finish='matte', last=null, history=[], redoStack=[], dpr=1;
+ const swatchColors=['#F04444','#FF9F43','#F9E547','#36C98F','#3B82F6','#7C5CFC','#E879F9','#FFFFFF','#202333','#111111','#8B5E3C','#F7A8B8'];
+ const swatches=document.getElementById('swatches');
+ swatchColors.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.style.background=c;b.title=c;b.setAttribute('aria-label','Choose '+c);b.onclick=()=>{color.value=c;updateLabels()};swatches.appendChild(b)});
+ function resize(){
+   const old=document.createElement('canvas');old.width=canvas.width;old.height=canvas.height;old.getContext('2d').drawImage(canvas,0,0);
+   const r=canvas.getBoundingClientRect();dpr=Math.max(1,window.devicePixelRatio||1);
+   canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);
+   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineCap='round';ctx.lineJoin='round';
+   if(old.width&&old.height)ctx.drawImage(old,0,0,old.width,old.height,0,0,r.width,r.height);
+   if(history.length===0)saveState(false);
+ }
+ function saveState(clearRedo=true){try{history.push(canvas.toDataURL('image/png'));if(history.length>25)history.shift();if(clearRedo)redoStack=[];updateHistoryButtons()}catch(e){}}
+ function loadState(data){const img=new Image();img.onload=()=>{ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);ctx.drawImage(img,0,0,canvas.width/dpr,canvas.height/dpr)};img.src=data}
+ function updateHistoryButtons(){undoBtn.disabled=history.length<=1;redoBtn.disabled=redoStack.length===0}
+ function updateLabels(){hex.textContent=color.value.toUpperCase();opacityVal.textContent=opacity.value+'%';sizeVal.textContent=size.value+' px';document.getElementById('toolStatus').textContent=(tool==='eraser'?'Eraser':'Brush')+' · '+(finish==='glossy'?'Glossy':'Matte')}
+ function point(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}
+ function drawDot(p){ctx.save();ctx.globalCompositeOperation=tool==='eraser'?'destination-out':'source-over';ctx.globalAlpha=tool==='eraser'?1:Number(opacity.value)/100;ctx.fillStyle=color.value;ctx.shadowBlur=finish==='glossy'&&tool==='brush'?Math.max(3,Number(size.value)*.55):0;ctx.shadowColor=color.value;ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.5,Number(size.value)/2),0,Math.PI*2);ctx.fill();if(finish==='glossy'&&tool==='brush'){ctx.globalAlpha=Math.min(.55,Number(opacity.value)/160);ctx.fillStyle='#ffffff';ctx.shadowBlur=0;ctx.beginPath();ctx.arc(p.x-Number(size.value)*.12,p.y-Number(size.value)*.12,Math.max(.5,Number(size.value)*.12),0,Math.PI*2);ctx.fill()}ctx.restore()}
+ function stroke(a,b){ctx.save();ctx.globalCompositeOperation=tool==='eraser'?'destination-out':'source-over';ctx.globalAlpha=tool==='eraser'?1:Number(opacity.value)/100;ctx.strokeStyle=color.value;ctx.lineWidth=Number(size.value);ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowBlur=finish==='glossy'&&tool==='brush'?Math.max(3,Number(size.value)*.5):0;ctx.shadowColor=color.value;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(finish==='glossy'&&tool==='brush'){ctx.globalAlpha=Math.min(.5,Number(opacity.value)/180);ctx.shadowBlur=0;ctx.strokeStyle='#fff';ctx.lineWidth=Math.max(1,Number(size.value)*.16);ctx.beginPath();ctx.moveTo(a.x-Number(size.value)*.12,a.y-Number(size.value)*.12);ctx.lineTo(b.x-Number(size.value)*.12,b.y-Number(size.value)*.12);ctx.stroke()}ctx.restore()}
+ canvas.addEventListener('pointerdown',e=>{drawing=true;canvas.setPointerCapture(e.pointerId);last=point(e);drawDot(last)});
+ canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=point(e);stroke(last,p);last=p});
+ function end(){if(drawing){drawing=false;last=null;saveState();}}
+ canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);canvas.addEventListener('lostpointercapture',end);
+ document.getElementById('brush').onclick=()=>{tool='brush';document.getElementById('brush').classList.add('active');document.getElementById('eraser').classList.remove('active');updateLabels()};
+ document.getElementById('eraser').onclick=()=>{tool='eraser';document.getElementById('eraser').classList.add('active');document.getElementById('brush').classList.remove('active');updateLabels()};
+ document.getElementById('matte').onclick=()=>{finish='matte';document.getElementById('matte').classList.add('active');document.getElementById('glossy').classList.remove('active');updateLabels()};
+ document.getElementById('glossy').onclick=()=>{finish='glossy';document.getElementById('glossy').classList.add('active');document.getElementById('matte').classList.remove('active');updateLabels()};
+ document.getElementById('fillwhite').onclick=()=>{ctx.save();ctx.globalCompositeOperation='destination-over';ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width/dpr,canvas.height/dpr);ctx.restore();saveState()};
+ document.getElementById('clear').onclick=()=>{if(confirm('Clear your whole drawing?')){ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);saveState()}};
+ undoBtn.onclick=()=>{if(history.length>1){redoStack.push(history.pop());loadState(history[history.length-1]);updateHistoryButtons()}};
+ redoBtn.onclick=()=>{if(redoStack.length){const s=redoStack.pop();history.push(s);loadState(s);updateHistoryButtons()}};
+ document.getElementById('download').onclick=()=>{const a=document.createElement('a');a.download='color-studio-artwork.png';a.href=canvas.toDataURL('image/png');a.click()};
+ color.oninput=updateLabels;opacity.oninput=updateLabels;size.oninput=updateLabels;
+ if('ResizeObserver' in window)new ResizeObserver(()=>resize()).observe(canvas.parentElement);else window.addEventListener('resize',resize);
+ resize();updateLabels();
+})();
+</script>
+</body>
+</html>
